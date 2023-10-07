@@ -5,6 +5,8 @@ import morgan from 'morgan';
 import http from 'http';
 import * as dotenv from 'dotenv'
 
+import { election } from './helpers/election-option';
+
 dotenv.config()
 
 // Initializations
@@ -29,7 +31,9 @@ app.get('/', (req, res) => {
 });
 
 socketIoServer.on('connection', (socket) => {
+    
     console.log('New connection', socket.id);
+
     socket.on('saludo', (body) => {
         console.log('Message received', body);
         socket.broadcast.emit('message', {
@@ -37,6 +41,12 @@ socketIoServer.on('connection', (socket) => {
             from: socket.id.slice(8),
         });
     });
+
+    socket.on('election', (option) => {
+        console.log(`Election ${option} received from ${ socket.id.slice(8)}`);
+        election(socket, option);
+    })
+
 });
 
 
