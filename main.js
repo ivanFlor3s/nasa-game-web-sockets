@@ -4,7 +4,6 @@ import { Server as SocketServer } from 'socket.io';
 import http from 'http';
 import * as dotenv from 'dotenv'
 
-import { election } from './helpers/election-option';
 import morganBody from 'morgan-body';
 import bodyParser from 'body-parser';
 
@@ -14,7 +13,7 @@ dotenv.config()
 const app = express();
 const server = http.createServer(app);
 
-const MAX_PUNTOS = 3;
+const MAX_PUNTOS = 20;
 
 const socketIoServer = new SocketServer(server);
 
