@@ -7,6 +7,7 @@ import { router as gameRouter } from '../routes/games.routes.js';
 import { router as authRouter } from '../routes/auth.routes.js';
 
 import { sequelize } from '../connection/sequelize-config.js';
+import { configRelations } from '../config/db-relations.js';
 // import { configRelations } from './models/relations.js';
 
 //ROUTES
@@ -48,8 +49,8 @@ export class Server {
     async conectDb() {
         try {
             await sequelize.authenticate();
-            // configRelations();
-            await sequelize.sync({ force: false, alter: true });
+            configRelations();
+            await sequelize.sync({ force: true, alter: true });
             console.log('Connected to database');
         } catch (error) {
             console.error('Unable to connect to the database');

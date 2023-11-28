@@ -2,8 +2,8 @@ import { Sequelize } from 'sequelize';
 
 export const sequelize = new Sequelize('nasa-game', 'postgres', 'awg1947', {
     dialect: process.env.DIALECT ?? 'postgres',
-    host: process.env.HOST,
-    port: process.env.PORT,
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
     pool: {
         acquire: process.env.POOL_ACQUIRE,
         idle: process.env.POOL_IDLE,
