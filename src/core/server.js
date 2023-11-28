@@ -6,7 +6,7 @@ import { router as userRouter } from '../routes/users.routes.js';
 import { router as gameRouter } from '../routes/games.routes.js';
 import { router as authRouter } from '../routes/auth.routes.js';
 
-// import { sequelize } from './config/config-db.js';
+import { sequelize } from '../connection/sequelize-config.js';
 // import { configRelations } from './models/relations.js';
 
 //ROUTES
@@ -26,7 +26,7 @@ export class Server {
         };
 
         //Connect to db
-        // this.conectDb();
+        //this.conectDb();
 
         //MIDLEWARES
         this.middlewares();
@@ -48,7 +48,7 @@ export class Server {
     async conectDb() {
         try {
             await sequelize.authenticate();
-            configRelations();
+            // configRelations();
             await sequelize.sync({ force: false, alter: true });
             console.log('Connected to database');
         } catch (error) {
