@@ -27,7 +27,7 @@ export class Server {
         };
 
         //Connect to db
-        //this.conectDb();
+        this.conectDb();
 
         //MIDLEWARES
         this.middlewares();
