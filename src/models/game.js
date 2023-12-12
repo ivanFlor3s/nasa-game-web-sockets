@@ -11,6 +11,11 @@ Game.init(
             autoIncrement: true,
             primaryKey: true,
         },
+        name: {
+            type: DataTypes.STRING(50),
+            allowNull: false,
+            unique: true,
+        }
     },
     { timestamps: true, sequelize: sequelize, modelName: 'Game' }
 );
