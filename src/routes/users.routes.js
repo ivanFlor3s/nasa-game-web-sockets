@@ -6,3 +6,5 @@ export const router = Router();
 
 router.put('/:id', [validarJwt], userController.updateUser);
 router.get('/', [validarJwt, isAdmin], userController.getAll);
+router.delete('/:id', [validarJwt, isAdmin], userController.deleteUser);
+router.put('/:id/changeRol', [validarJwt, isAdmin], userController.changeRol);
