@@ -31,9 +31,9 @@ export const login = async (req = request, res = response) => {
             if (!validate) {
                 res.status(404).send(new ApiResponse(null, 'Contraseña incorrecta'));
             } else {
-                const {id, name, lastName, email} = user;
+                const {id, name, lastName, email, role} = user;
                 const token = await generarJWT({id, name, lastName, email});
-                res.status(200).send(new ApiResponse({token, user: {id, name, lastName, email}  }, 'Se logueo el usuario'));
+                res.status(200).send(new ApiResponse({token, user: {id, name, lastName, email, role}  }, 'Se logueo el usuario'));
             }
         }
     } catch (error) {
