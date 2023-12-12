@@ -50,7 +50,7 @@ export class Server {
         try {
             await sequelize.authenticate();
             configRelations();
-            await sequelize.sync({ force: true, alter: true });
+            await sequelize.sync({ force: false, alter: true });
             console.log('Connected to database');
         } catch (error) {
             console.error('Unable to connect to the database');
