@@ -15,6 +15,15 @@ Game.init(
             type: DataTypes.STRING(50),
             allowNull: false,
             unique: true,
+        },
+        scoreMax: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+        inProgress: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
         }
     },
     { timestamps: true, sequelize: sequelize, modelName: 'Game' }
