@@ -19,6 +19,7 @@ export class Server {
     constructor() {
         this.app = express();
         this.server = http.createServer(this.app);
+        this.io = new SocketServer(this.server)
 
         this.routes = {
             users: `${BASE_API_URL}/users`,
@@ -67,24 +68,27 @@ export class Server {
         this.app.use(express.urlencoded({ extended: true }));
     }
 
-    configSocket(server) {
-        this.io = new SocketServer(server);
-
+    configSocket() {
+        let usersPlaying = [];
         this.io.on('connection', (socket) => {
-            let users = [];
-            socket.on('join server', (userName) => {
-                const socketIdExiste = !!users.find((user) => user.id === socket.id);
+            socket.on('userEnterApp', (email) => {
+                console.log('userEnterApp');
+                socket.emit('actualizar puntos', usersPlaying);
+            });
+
+            socket.on('join game', (userName) => {
+                const socketIdExiste = !!usersPlaying.find((user) => user.id === socket.id);
 
                 if (!socketIdExiste) {
                     const user = { userName, id: socket.id, puntaje: 0, winner: false };
                     console.log('new user', user);
-                    users.push(user);
-
+                    usersPlaying.push(user);
+                    console.log('users', usersPlaying.length);
                     //Respuesta para el cliente que lanzo el evento
-                    socket.emit('new user', { user, users });
+                    socket.emit('new user', { user, users: usersPlaying });
 
                     //Respuesta para los demas
-                    socket.broadcast.emit('new user', { user, users });
+                    socket.broadcast.emit('new user', { user, users: usersPlaying });
                 }
             });
 
@@ -95,37 +99,38 @@ export class Server {
 
             socket.on('disconnect', () => {
                 console.log('Client disconnected', socket.id);
-                users = users.filter((user) => user.id !== socket.id);
-                socket.broadcast.emit('user disconnected', users);
+                usersPlaying = usersPlaying.filter((user) => user.id !== socket.id);
+                socket.broadcast.emit('user disconnected', usersPlaying);
             });
 
             socket.on('nuevoPunto', (id) => {
                 console.log('Alguien hizo un punto');
-                console.log({ id, users });
-                const user = users.find((user) => user.id == id);
+                console.log({ id, users: usersPlaying });
+                const user = usersPlaying.find((user) => user.id == id);
                 user.puntaje += 1;
 
                 //Respuesta para el cliente que lanzo el evento
-                socket.emit('actualizar puntos', users);
+                socket.emit('actualizar puntos', usersPlaying);
 
                 //Respuesta para los demas
-                socket.broadcast.emit('actualizar puntos', users);
+                socket.broadcast.emit('actualizar puntos', usersPlaying);
 
-                if (user.puntaje == MAX_PUNTOS) {
+                if (user.puntaje >= MAX_PUNTOS) {
                     user.winner = true;
-                    socket.emit('ganador', users);
-                    socket.broadcast.emit('ganador', users);
+                    
+                    socket.emit('ganador', usersPlaying);
+                    socket.broadcast.emit('ganador', usersPlaying);
                 }
             });
 
             socket.on('volver a jugar', () => {
-                users.forEach((user) => {
+                usersPlaying.forEach((user) => {
                     user.puntaje = 0;
                     user.winner = false;
                 });
 
-                socket.emit('actualizar puntos', users);
-                socket.broadcast.emit('actualizar puntos', users);
+                socket.emit('actualizar puntos', usersPlaying);
+                socket.broadcast.emit('actualizar puntos', usersPlaying);
 
                 socket.broadcast.emit('ir a game');
             });
