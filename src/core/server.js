@@ -113,22 +113,26 @@ export class Server {
 
             socket.on('nuevoPunto', (id) => {
                 console.log('Alguien hizo un punto');
-                console.log({ id, users: usersPlaying });
                 const user = usersPlaying.find((user) => user.id == id);
                 user.puntaje += 1;
+                console.log({ id, users: usersPlaying });
 
                 //Respuesta para el cliente que lanzo el evento
                 socket.emit('actualizar puntos', usersPlaying);
 
                 //Respuesta para los demas
                 socket.broadcast.emit('actualizar puntos', usersPlaying);
+                
+                
 
                 if (user.puntaje >= maxScore) {
                     user.winner = true;
-                    gameApi.create({ users: usersPlaying });
                     socket.emit('ganador', usersPlaying);
                     socket.broadcast.emit('ganador', usersPlaying);
+
+                    gameApi.create({ users: usersPlaying });
                     gameApi.closeCurrentGame();
+
                     usersPlaying = [];
                 }
             });
