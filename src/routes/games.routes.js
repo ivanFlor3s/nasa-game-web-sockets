@@ -6,3 +6,4 @@ export const router = Router();
 
 router.get('/current', [validarJwt], gameController.getCurrentGame);
 router.post('/', [validarJwt], gameController.createGame);
+router.get('/metric', gameController.getGamesPlayedMetric);
