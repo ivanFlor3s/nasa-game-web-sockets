@@ -12,6 +12,17 @@ export class GameApi {
       return error;
     }
   };
+
+  closeCurrentGame = async () => {
+    try {
+      const currentGame = await Game.findOne({ where: { inProgress: true } });
+      currentGame.inProgress = false;
+      await currentGame.save();
+      return currentGame;
+    } catch (error) {
+      return error;
+    }
+  }
   
    
 }

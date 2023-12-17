@@ -8,6 +8,7 @@ import { router as authRouter } from '../routes/auth.routes.js';
 
 import { sequelize } from '../connection/sequelize-config.js';
 import { configRelations } from '../config/db-relations.js';
+import { GameApi } from '../api/game.api.js';
 // import { configRelations } from './models/relations.js';
 
 //ROUTES
@@ -70,17 +71,24 @@ export class Server {
 
     configSocket() {
         let usersPlaying = [];
+        let maxScore = 10;
+        const gameApi = new GameApi();
         this.io.on('connection', (socket) => {
             socket.on('userEnterApp', (email) => {
                 console.log('userEnterApp');
                 socket.emit('actualizar puntos', usersPlaying);
             });
 
-            socket.on('join game', (userName) => {
+            socket.on('set limit score', (max) => {
+                console.log('set limit score', max);
+                maxScore = max;
+            })
+
+            socket.on('join game', ({userName, userId}) => {
                 const socketIdExiste = !!usersPlaying.find((user) => user.id === socket.id);
 
                 if (!socketIdExiste) {
-                    const user = { userName, id: socket.id, puntaje: 0, winner: false };
+                    const user = { userName, id: socket.id, puntaje: 0, winner: false, userId };
                     console.log('new user', user);
                     usersPlaying.push(user);
                     console.log('users', usersPlaying.length);
@@ -115,24 +123,14 @@ export class Server {
                 //Respuesta para los demas
                 socket.broadcast.emit('actualizar puntos', usersPlaying);
 
-                if (user.puntaje >= MAX_PUNTOS) {
+                if (user.puntaje >= maxScore) {
                     user.winner = true;
-                    
+                    gameApi.create({ users: usersPlaying });
                     socket.emit('ganador', usersPlaying);
                     socket.broadcast.emit('ganador', usersPlaying);
+                    gameApi.closeCurrentGame();
+                    usersPlaying = [];
                 }
-            });
-
-            socket.on('volver a jugar', () => {
-                usersPlaying.forEach((user) => {
-                    user.puntaje = 0;
-                    user.winner = false;
-                });
-
-                socket.emit('actualizar puntos', usersPlaying);
-                socket.broadcast.emit('actualizar puntos', usersPlaying);
-
-                socket.broadcast.emit('ir a game');
             });
         });
     }
